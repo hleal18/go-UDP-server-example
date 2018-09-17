@@ -10,7 +10,6 @@ import (
 	"fmt"
 	"net"
 	"os"
-	"time"
 )
 
 func main() {
@@ -42,17 +41,33 @@ func handleClient(conn *net.UDPConn) {
 
 	// Realiza el proceso de lectura de paquetes UDP
 	// recibidos.
-	_, addr, err := conn.ReadFromUDP(buf[0:])
+	n, addr, err := conn.ReadFromUDP(buf[0:])
 	if err != nil {
 		return
 	}
 
+	decoded_instruction := string(buf[:n])
+
+	// Imprime por consola la instruccion recibida.
+	fmt.Println(decoded_instruction)
+
+	if decoded_instruction == "encender_foco" {
+		// Codigo a servicios cloud que gestionen
+		// el encendido de un dispositivo.
+	} else if decoded_instruction == "abrir_persiana" {
+		// Codigo a servicios cloud que gestionen
+		// el dispositivo encargado de abrir persianas.
+	} else {
+		// Ninguna instrucción es válida.
+		conn.WriteToUDP([]byte("Instrucciones recibidas no son válidas\n"), addr)
+	}
+
 	// Obtiene la fecha actual y la pasa a un String.
-	daytime := time.Now().String()
+	result := "Finalizacion de tareas\n"
 
 	// Envía a la conexión actual (socket UDP) y
-	// le envía un datagrama con la información de la fecha actual.
-	conn.WriteToUDP([]byte(daytime), addr)
+	// le envía un datagrama con la información de la petición realizada.
+	conn.WriteToUDP([]byte(result), addr)
 
 	// Se finaliza el proceso de gestión del cliente.
 }
